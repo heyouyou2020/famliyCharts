@@ -9,6 +9,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import newRoutes from './routes'
+import store from '@/store'
 // 解决VueRouter3.0以上同页面跳转报错
 // 获取原型对象push函数
 const originalPush = VueRouter.prototype.push
@@ -30,6 +31,15 @@ return originalReplace.call(this , location).catch(err=>err)
 Vue.use(VueRouter)
 const routes = [
   {
+    path: '/login',
+    name: 'login',
+    meta: {
+        title: '登录页',
+        key: 'login',
+    },
+    component: () => import('@/views/page/login/index.vue')
+  },
+  {
     path: '/',
     name: 'routerLayout',
     redirect: 'home',
@@ -37,11 +47,54 @@ const routes = [
     children: newRoutes
   }
 ]
+// 设置免登录白名单
+const wihteLIst = ['/login']
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
 })
+router.beforeEach((to, from, next) => {
+  const token = store.state.token;
+  const cook = localStorage.getItem('token')
+  if (token) {
+    next();
+  } else {
+    if (wihteLIst.includes(to.path)) {
+      next();
+    } else {
+      if (cook) {
+        store.commit('setToken', {token: '19950313'});
+        store.commit('setInfo', {
+          userName: '小没没',
+          lever: '管理员',
+          phone: '18351887995',
+        });
+        next({path: to.fullPath});
+      } else {
+        if (to.query.token === '19950313') {
+          store.commit('setToken', {token: '19950313'});
+          store.commit('setInfo', {
+            userName: '小没没',
+            lever: '管理员',
+            phone: '18351887995',
+          });
+          next({path: to.fullPath});
+        } else {
+          next({
+            path: '/login',
+            query: {
+              redirect: to.fullPath
+            },
+          })
+        }
+      }
+    }
+  }
+}) 
+  
+
+
 
 
 export default router

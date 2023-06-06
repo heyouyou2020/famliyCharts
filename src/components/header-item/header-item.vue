@@ -8,59 +8,71 @@
 -->
 <template>
   <div class="header">
-    <div class="heat-left"></div>
+    <div class="heat-left">
+      没没家庭一站式管理系统
+    </div>
     <div class="heat-center">
       <ul class="heat-center-ul">
-        <li v-for="item, index in routerList" class="heat-center-ul-li" :class="item.key === activeKey ? 'active' : ''" :key="index" @click="changeKey(item)">
-          <div class="heat-center-ul-li-div">{{ item.title }}</div>
+        <li v-for="item, index in routerList" class="heat-center-ul-li" :class="item.meta.key === activeKey ? 'active' : ''" :key="index" @click="changeKey(item)">
+          <div class="heat-center-ul-li-div">{{ item.meta.title }}</div>
         </li>
       </ul>
-      <ul v-if="routerListChild" class="heat-center-child">
-        <li v-for="item in routerListChild" :key="item.key" :class="item.key === activeChildKey ? 'activeChildKey' : ''" @click="changeitemKey(item)">{{ item.title }}</li>
-      </ul>
     </div>
-    <div class="heat-right"></div>
+    <div class="heat-right">
+      <el-dropdown>
+        <span class="el-dropdown-link">
+          <el-avatar size="medium" :src="circleUrl"></el-avatar>
+          <span class="el-dropdown-link-account">{{ $store.state.userInfo.userName }}</span>
+          <i class="el-icon-arrow-down el-icon--right"></i>
+        </span>
+        <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>
+              <span>用户名</span>
+              <span>{{ $store.state.userInfo.userName }}</span>
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <span>角色</span>
+              <span>{{ $store.state.userInfo.lever }}</span>
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <span>手机</span>
+              <span>{{ $store.state.userInfo.phone }}</span>
+            </el-dropdown-item>
+            <el-dropdown-item class="drop-title">
+              <span>锁定账户</span>
+              <span @click="loginOut">注销</span>
+            </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
   </div>
 </template>
 <script>
-// import routerList from './const'
 import routerList from '@/router/routes.js'
 export default {
   name: 'header-item',
   data() {
     return {
       routerList,
-      activeKey: 'home',
-      activeChildKey: '',
+      circleUrl: require('../../assets/image/vatou.jpg'),
     }
   },
   computed: {
-    routerListChild() {
-      return routerList.filter(item => item.key === this.activeKey)[0].children;
+    activeKey() {
+      return this.$route.meta.key
     },
   },
-  watch: {
-    activeKey(value) {
-      this.getActiveChildKey(value)
-    },
-  },
+  watch: {},
   methods: {
     // 更新activeChildKey值
-    getActiveChildKey(value) {
-      this.activeChildKey = routerList.filter(item => item.key === value)[0].children[0].key || '';
-    },
     changeKey(item) {
-      this.activeKey = item.key;
-      this.getActiveChildKey(this.activeKey)
       this.$router.push({
-        name: item.key,
+        name: item.meta.key,
       })
     },
-    changeitemKey(item) {
-      this.activeChildKey = item.key;
-      this.$router.push({
-        name: item.key,
-      })
+    loginOut() {
+      this.$store.commit('loginOut');
+      this.$router.replace('/login');
     },
   },
 }
@@ -70,14 +82,34 @@ export default {
   // background: linear-gradient(91.71deg, #00AAEB 0%, #00C2CE 51.04%, #12C299 100%);
   display: flex;
   .heat-left{
-    width: 200px;
-    height: 80px;
+    height: 5rem;
     background:#00AAEB;
+    line-height: 5rem;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #ffffff;
+    padding-left: 1rem;
   }
   .heat-right{
-    width: 200px;
-    height: 80px;
+    height: 5rem;
     background: #12C299;
+    display: flex;
+    align-items: center;
+    padding-right: 2rem;
+    .el-dropdown-link {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 500;
+      &-account{
+        margin-left: 4px;
+      }
+    }
+    .el-icon-arrow-down {
+      font-size: 0.75rem;
+    }
   }
   .heat-center{
     flex: 1;
@@ -89,14 +121,13 @@ export default {
     color: #ffffff;
     background: linear-gradient(91.71deg, #00AAEB 0%, #00C2CE 51.04%, #12C299 100%);
     .heat-center-ul-li{
-      width: 120px;
       .heat-center-ul-li-div{
-        width: 120px;
         text-align: center;
-        line-height: 80px;
-        font-size: 20px;
+        line-height: 5rem;
+        font-size: 1.25rem;
         font-weight: 400;
-        height: 80px;
+        height: 5rem;
+        width: 8rem;
         cursor: pointer;
         &:hover{
           background: #ffffff;
@@ -108,26 +139,6 @@ export default {
       background: #ffffff;
       color: #8bb0da;
     }
-  }
-  .heat-center-child{
-      display: flex;
-      background: #ffffff;
-      height: 60px;
-      justify-content: center;
-      li{
-        height: 60px;
-        line-height: 60px;
-        font-size: 16px;
-        color: #8bb0da;
-        list-style: none;
-        flex-direction: row;
-        padding: 0px 20px;
-        cursor: pointer;
-        box-sizing: border-box;
-      }
-      .activeChildKey{
-        border-bottom: 2px solid #8bb0da;
-      }
   }
 }
 </style>

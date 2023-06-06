@@ -1,5 +1,7 @@
 <template>
-  <div>{{ $route.name }}</div>
+  <div>
+     <dv-decoration-2 style="width:200px;height:5px;" />
+  </div>
 </template>
 <script>
 export default {
